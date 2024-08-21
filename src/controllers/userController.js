@@ -207,7 +207,32 @@ export const finishKakaoLogin = async (req, res) => {
     res.redirect("/login");
   }
 };
-export const edit = (req, res) => res.send("Edit user");
+
+export const getEdit = (req, res) => {
+  return res.render("edit-profile", { pageTitle: "Edit-Profile" });
+};
+export const postEdit = async (req, res) => {
+  //const id = req.session.user.id
+  //const { name, email, username, location } = req.body;
+  const {
+    session: {
+      user: { _id },
+    },
+    body: { name, email, username, location },
+  } = req;
+  const updatedUser = await User.findByIdAndUpdate(
+    _id,
+    {
+      name,
+      email,
+      username,
+      location,
+    },
+    { new: true }
+  );
+  req.session.user = updatedUser;
+  return res.redirect("/users/edit");
+};
 export const remove = (req, res) => res.send("Remove User");
 export const logout = (req, res) => {
   req.session.destroy();
