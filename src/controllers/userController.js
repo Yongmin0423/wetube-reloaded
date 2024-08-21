@@ -220,6 +220,27 @@ export const postEdit = async (req, res) => {
     },
     body: { name, email, username, location },
   } = req;
+
+  //중복 확인
+  const existingUser = await User.findOne({
+    _id: { $ne: _id }, //현재 사용자 id는 제외함
+    $or: [{ email }, { username }], //email이나 username 중 하나라도 현재 사용자가 아닌 다른 사용자가 존재하는 지 확인하는 코드
+  });
+
+  if (existingUser) {
+    let errorMessage = "";
+    if (existingUser.email === email) {
+      errorMessage = "This email is already taken.";
+    } else if (existingUser.username === username) {
+      errorMessage = "This username is already taken.";
+    }
+    console.log("Error Message:", errorMessage);
+    return res.render("edit-profile", {
+      pageTitle: "Edit-profile",
+      errorMessage,
+    });
+  }
+
   const updatedUser = await User.findByIdAndUpdate(
     _id,
     {
