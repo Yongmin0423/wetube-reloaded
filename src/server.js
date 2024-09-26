@@ -1,11 +1,13 @@
 import express from "express";
 import morgan from "morgan";
 import session from "express-session";
+import flash from "express-flash";
 import MongoStore from "connect-mongo";
 import rootRouter from "./routers/rootRouter";
 import videoRouter from "./routers/videoRouter";
 import userRouter from "./routers/userRouter";
 import { localsMiddleware } from "./middlewares";
+import apiRouter from "./routers/apiRouter";
 
 const app = express(); //express application을 만든다.
 const logger = morgan("dev");
@@ -26,9 +28,14 @@ app.use(
   })
 );
 
+app.use(flash());
 app.use(localsMiddleware);
+app.use("/uploads", express.static("uploads")); //노출 시키고 싶은 폴더의 이름을 적는다
+app.use("/static", express.static("assets"));
 app.use("/", rootRouter);
 app.use("/videos", videoRouter);
 app.use("/users", userRouter);
+app.use("/api", apiRouter);
+app.use("/ffmpeg", express.static("node_modules/@ffmpeg"));
 
 export default app;
